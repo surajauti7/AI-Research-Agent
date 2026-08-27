@@ -59,7 +59,7 @@ const [speechSupported, setSpeechSupported] = useState(true);
     setResult(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/research", {
+      const response = await fetch("https://ai-research-agent-backend-2c6r.onrender.com/research", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
