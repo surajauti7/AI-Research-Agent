@@ -23,8 +23,9 @@ const [speechSupported, setSpeechSupported] = useState(true);
   const recognition = new SpeechRecognition();
 
   recognition.lang = "en-IN";
-  recognition.interimResults = false;
+  recognition.interimResults = true;
   recognition.continuous = false;
+  recognition.maxAlternatives = 1;
 
   recognition.onstart = () => {
     setIsListening(true);
@@ -32,13 +33,29 @@ const [speechSupported, setSpeechSupported] = useState(true);
   };
 
   recognition.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    setQuestion(transcript);
+    let transcript = "";
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+
+    transcript = transcript.trim();
+
+    if (transcript) {
+      setQuestion(transcript);
+    }
   };
 
-  recognition.onerror = () => {
+  recognition.onerror = (event) => {
     setIsListening(false);
-    setError("Could not hear your voice. Please try again.");
+
+    if (event.error === "not-allowed") {
+      setError("Microphone permission was denied. Please allow microphone access.");
+    } else if (event.error === "no-speech") {
+      setError("No speech detected. Please try speaking again.");
+    } else {
+      setError("Could not hear your voice. Please try again.");
+    }
   };
 
   recognition.onend = () => {
